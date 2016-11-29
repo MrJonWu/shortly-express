@@ -21,12 +21,12 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
-app.use(session({secret:'keyboard cat', resave: false, saveUninitialized: true, cookie: {secure: true}}));
+app.use(session({secret: 'keyboard cat', resave: false, saveUninitialized: true, cookie: {secure: true}}));
 
 
 app.get('/', 
 function(req, res) {
-  var sess=req.session;
+  var sess = req.session;
   if (!sess.username) {
     res.redirect('login');
   } else {  
@@ -44,7 +44,7 @@ app.get('/signup', function(req, res) {
 
 app.get('/create', 
 function(req, res) {
-  var sess=req.session;
+  var sess = req.session;
   if (!sess.username) {
     res.redirect('login');
   } else {  
@@ -54,8 +54,8 @@ function(req, res) {
 
 app.get('/links', 
 function(req, res) {
-  var sess=req.session;
-  if(!sess.username) {
+  var sess = req.session;
+  if (!sess.username) {
     res.redirect('login');
   } else {
     Links.reset().fetch().then(function(links) {
