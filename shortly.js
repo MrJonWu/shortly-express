@@ -74,10 +74,10 @@ function(req, res) {
   var passWord = req.body.password;
   //if Username and password are legit
   if (userName === 'test' && passWord === 'test') {
-     req.session.regenerate(function() {
+    req.session.regenerate(function() {
       req.session.username = userName;
       res.redirect('index');
-     })
+    });
   } else {
     res.redirect('login');
   }
