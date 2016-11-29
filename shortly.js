@@ -10,7 +10,7 @@ var User = require('./app/models/user');
 var Links = require('./app/collections/links');
 var Link = require('./app/models/link');
 var Click = require('./app/models/click');
-
+var session = require('express-session');
 var app = express();
 
 app.set('views', __dirname + '/views');
@@ -21,23 +21,48 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
+app.use(session({secret:'keyboard cat', resave: false, saveUninitialized: true, cookie: {secure: true}}));
 
 
 app.get('/', 
 function(req, res) {
-  res.render('index');
+  var sess=req.session;
+  if (!sess.username) {
+    res.redirect('login');
+  } else {  
+    res.render('index');
+  }
+});
+
+app.get('/login', function(req, res) {
+  res.render('login');
+});
+
+app.get('/signup', function(req, res) {
+  res.render('signup');
 });
 
 app.get('/create', 
 function(req, res) {
-  res.render('index');
+  var sess=req.session;
+  if (!sess.username) {
+    res.redirect('login');
+  } else {  
+    res.render('index');
+  }
 });
 
 app.get('/links', 
 function(req, res) {
-  Links.reset().fetch().then(function(links) {
-    res.status(200).send(links.models);
-  });
+  var sess=req.session;
+  if(!sess.username) {
+    res.redirect('login');
+  } else {
+    Links.reset().fetch().then(function(links) {
+      console.log(links.models);
+      res.status(200).send(links.models);
+    });
+  }
 });
 
 app.post('/links', 
@@ -75,6 +100,12 @@ function(req, res) {
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+// var auth = function(req, res, next) {
+//   if (req.session && req.session.user === "amy" && req.session.admin)
+//     return next();
+//   else
+//     return res.sendStatus(401);
+// };
 
 
 
