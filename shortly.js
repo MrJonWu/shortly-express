@@ -21,16 +21,15 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
-app.use(session({secret: 'keyboard cat', resave: false, saveUninitialized: true, cookie: {secure: true}}));
+app.use(session({secret: 'keyboard cat', resave: false, saveUninitialized: true}));
 
 
 app.get('/', 
 function(req, res) {
-  var sess = req.session;
-  if (!sess.username) {
-    res.redirect('login');
-  } else {  
+  if (req.session.username) {
     res.render('index');
+  } else {  
+    res.redirect('login');
   }
 });
 
@@ -44,25 +43,51 @@ app.get('/signup', function(req, res) {
 
 app.get('/create', 
 function(req, res) {
-  var sess = req.session;
-  if (!sess.username) {
-    res.redirect('login');
-  } else {  
+  if (req.session.username) {
     res.render('index');
+  } else {  
+    res.redirect('login');
   }
 });
 
 app.get('/links', 
 function(req, res) {
-  var sess = req.session;
-  if (!sess.username) {
-    res.redirect('login');
-  } else {
+  if (req.session.username) {
     Links.reset().fetch().then(function(links) {
-      console.log(links.models);
       res.status(200).send(links.models);
     });
+  } else {
+    res.redirect('login');
   }
+});
+
+app.get('/logout',
+function(req, res) {
+  req.session.destroy(function() {
+    res.redirect('login');
+  });
+});
+
+app.post('/login',
+function(req, res) {
+  var userName = req.body.username;
+  var passWord = req.body.password;
+  //if Username and password are legit
+  if (userName === 'test' && passWord === 'test') {
+     req.session.regenerate(function() {
+      req.session.username = userName;
+      res.redirect('index');
+     })
+  } else {
+    res.redirect('login');
+  }
+});
+
+app.post('/signup',
+function(req, res) {
+  var userName = req.body.username;
+  var passWord = req.body.password;
+
 });
 
 app.post('/links', 
