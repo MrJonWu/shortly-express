@@ -26,7 +26,7 @@ app.use(session({secret: 'keyboard cat', resave: false, saveUninitialized: true}
 
 app.get('/', 
 function(req, res) {
-  if (req.session.username) {
+  if (util.checkUser(req)) {
     res.render('index');
   } else {  
     res.redirect('/login');
@@ -35,7 +35,7 @@ function(req, res) {
 
 app.get('/create', 
 function(req, res) {
-  if (req.session.username) {
+  if (util.checkUser(req)) {
     res.render('index');
   } else {  
     res.redirect('/login');
@@ -44,7 +44,7 @@ function(req, res) {
 
 app.get('/links', 
 function(req, res) {
-  if (req.session.username) {
+  if (util.checkUser(req)) {
     Links.reset().fetch().then(function(links) {
       res.status(200).send(links.models);
     });
