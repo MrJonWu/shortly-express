@@ -23,7 +23,6 @@ var User = db.Model.extend({
   },
 
   logIn: function(password) {
-    console.log('invoked with ', password);
     var hash = this.get('password');
     return new Promise(function(resolve, reject) {
       bcrypt.compare(password, hash, function (err, match) {
