@@ -29,16 +29,8 @@ function(req, res) {
   if (req.session.username) {
     res.render('index');
   } else {  
-    res.redirect('login');
+    res.redirect('/login');
   }
-});
-
-app.get('/login', function(req, res) {
-  res.render('login');
-});
-
-app.get('/signup', function(req, res) {
-  res.render('signup');
 });
 
 app.get('/create', 
@@ -46,7 +38,7 @@ function(req, res) {
   if (req.session.username) {
     res.render('index');
   } else {  
-    res.redirect('login');
+    res.redirect('/login');
   }
 });
 
@@ -57,37 +49,8 @@ function(req, res) {
       res.status(200).send(links.models);
     });
   } else {
-    res.redirect('login');
+    res.redirect('/login');
   }
-});
-
-app.get('/logout',
-function(req, res) {
-  req.session.destroy(function() {
-    res.redirect('login');
-  });
-});
-
-app.post('/login',
-function(req, res) {
-  var userName = req.body.username;
-  var passWord = req.body.password;
-  //if Username and password are legit
-  if (userName === 'test' && passWord === 'test') {
-    req.session.regenerate(function() {
-      req.session.username = userName;
-      res.redirect('index');
-    });
-  } else {
-    res.redirect('login');
-  }
-});
-
-app.post('/signup',
-function(req, res) {
-  var userName = req.body.username;
-  var passWord = req.body.password;
-
 });
 
 app.post('/links', 
@@ -125,14 +88,66 @@ function(req, res) {
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
-// var auth = function(req, res, next) {
-//   if (req.session && req.session.user === "amy" && req.session.admin)
-//     return next();
-//   else
-//     return res.sendStatus(401);
-// };
+app.get('/login', function(req, res) {
+  res.render('login');
+});
 
+app.get('/logout',
+function(req, res) {
+  req.session.destroy(function() {
+    res.redirect('/login');
+  });
+});
 
+app.get('/signup', function(req, res) {
+  res.render('signup');
+});
+
+app.post('/login',
+function(req, res) {
+  var userName = req.body.username;
+  var passWord = req.body.password;
+  //if Username and password are legit
+  new User( { username: userName } ).fetch().then(function(user) {
+    if (!user) {
+      res.redirect('/login');
+    } else {
+      user.logIn(passWord).then(function(found) {
+        if (found) {
+          req.session.regenerate(function() {
+            req.session.username = userName;
+            res.redirect('/');
+          });
+        } else {
+          res.redirect('/login');
+        }
+      });
+    }
+  });
+});
+
+app.post('/signup',
+function(req, res) {
+  var userName = req.body.username;
+  var passWord = req.body.password;
+
+  new User( { username: userName } ).fetch().then(function(exist) {
+    if (exist) {
+      console.log('already in DB');
+      res.redirect('/login');
+    } else {
+      Users.create({
+        username: userName,
+        password: passWord
+      })
+      .then(function(newUser) {
+        //res.status(200).send(newUser);
+      });
+      req.session.username = userName;
+      res.redirect('/');
+    }
+  });
+});
 
 /************************************************************/
 // Handle the wildcard route last - if all other routes fail
